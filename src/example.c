@@ -89,12 +89,16 @@ void write_img_to_png(char *filename, IndexedImg *img) {
     png_init_io(png, file);
     
     unsigned int bit_depth = ceil(log2(img->colors_count));
-    assert(bit_depth > 0 && bit_depth <= 8);
+    assert(bit_depth <= 8);
     // valid PNG bit depths: 1, 2, 4, 8
+    if (bit_depth == 0) {
+        bit_depth = 1;
+    }
+    if (bit_depth > 1 && bit_depth % 2 == 1) {
+        bit_depth += 1;
+    }
     if (bit_depth == 6) {
         bit_depth = 8;
-    } else if (bit_depth > 1 && bit_depth % 2 == 1) {
-        bit_depth += 1;
     }
 
     png_set_IHDR(
