@@ -126,7 +126,7 @@ void write_img_to_png(char *filename, IndexedImg *img) {
 
     // internal palette to png palette
     png_color* palette = png_malloc(png, img->colors_count * sizeof(png_color));
-    for (uint8_t i = 0; i < img->colors_count; i++) {
+    for (int i = 0; i < img->colors_count; i++) {
         palette[i].red = img->palette[i * 3];
         palette[i].green = img->palette[i * 3 + 1];
         palette[i].blue = img->palette[i * 3 + 2];
