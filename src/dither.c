@@ -97,10 +97,10 @@ void dither_apply_error(Dither *dither, uint32_t pixel_index, uint8_t *color, ui
     int g_error = dither->errors[error_index + COLOR_G];
     int b_error = dither->errors[error_index + COLOR_B];
 
-    int r = r_error / DITHER_COEF_DIVIDER + color[COLOR_R];
+    int r = color[COLOR_R] + r_error / DITHER_COEF_DIVIDER;
     corrected_color[COLOR_R] = CLAMP(r, UINT8_MAX);
-    int g = g_error / DITHER_COEF_DIVIDER + color[COLOR_G];
+    int g = color[COLOR_G] + g_error / DITHER_COEF_DIVIDER;
     corrected_color[COLOR_G] = CLAMP(g, UINT8_MAX);
-    int b = b_error / DITHER_COEF_DIVIDER + color[COLOR_B];
+    int b = color[COLOR_B] + b_error / DITHER_COEF_DIVIDER;
     corrected_color[COLOR_B] = CLAMP(b, UINT8_MAX);
 }
