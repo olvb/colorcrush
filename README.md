@@ -18,5 +18,6 @@ Reducing an octree node means folding all its leaves onto iself. It is not possi
 
 ## Useful links
 
-On color quantization: https://www.imagemagick.org/Usage/quantize/  
-On dithering : http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/  
+On color quantization: https://www.imagemagick.org/Usage/quantize/
+
+On dithering : http://www.tannerhelland.com/4660/dithering-eleven-algorithms-source-code/
