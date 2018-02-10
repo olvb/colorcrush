@@ -148,7 +148,7 @@ void img_quantize(
         node->b += color[COLOR_B];
     }
 
-    // step 2: reudce the octree (ie drop colors)
+    // step 2: reduce the octree (ie drop colors)
     Heap heap;
     heap_init(&heap, max_heap_size);
     /*
@@ -185,7 +185,7 @@ void img_quantize(
     }
     heap_clear(&heap);
 
-    // now the actual colors count is known, instanciante the indexed image
+    // now the actual colors count is known, instanciate the indexed image
     indexed_img_init(indexed_img, flat_img->width, flat_img->height, (unsigned int) colors_count);
     // fill palette with colors from remaining leaves
     unsigned int palette_size = fill_palette(indexed_img->palette, 0, octree);
@@ -202,15 +202,18 @@ void img_quantize(
     } else {
         Dither dither;
         dither_init(&dither, indexed_img->width);
+        
+        uint8_t corrected_src_color[COLOR_CHANNELS_COUNT];
+
         for (uint32_t i = 0; i < data_size; i += 3) {
             uint8_t *src_color = &data[i];
-            dither_apply_error(&dither, pixel_index, src_color);
-            
-            uint8_t palette_index = index_of_nearest_color(indexed_img->palette, palette_size, src_color);
+            dither_apply_error(&dither, pixel_index, src_color, corrected_src_color);
+
+            uint8_t palette_index = index_of_nearest_color(indexed_img->palette, palette_size, corrected_src_color);
             
             indexed_img->data[pixel_index] = palette_index;
             uint8_t *rounded_color = &indexed_img->palette[palette_index * 3];
-            dither_diffuse_error(&dither, pixel_index, src_color, rounded_color);
+            dither_diffuse_error(&dither, pixel_index, corrected_src_color, rounded_color);
             
             pixel_index++;
             if (pixel_index % indexed_img->width == 0) {

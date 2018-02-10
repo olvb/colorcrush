@@ -25,5 +25,5 @@ Computes and stores error for pixel located at @pixel_index
 @rounded_color : actual color that was assigned to pixel after quantization and dithering
 */
 void dither_diffuse_error(Dither *dither, uint32_t pixel_index, uint8_t *src_color, uint8_t *rounded_color);
-/** Applies to @color accumulated error for pixel located at @pixel_index */
-void dither_apply_error(Dither *dither, uint32_t pixel_index, uint8_t *color);
+/** Puts into @correcte_color the value of @color with accumulated error for pixel located at @pixel_index */
+void dither_apply_error(Dither *dither, uint32_t pixel_index, uint8_t *color, uint8_t *corrected_color);

@@ -92,15 +92,15 @@ void dither_diffuse_error(
 
 #define CLAMP(x, ceil) ((x) > (ceil) ? (ceil) : ((x) < 0 ? 0 : (x)))
 
-void dither_apply_error(Dither *dither, uint32_t pixel_index, uint8_t *color) {
+void dither_apply_error(Dither *dither, uint32_t pixel_index, uint8_t *color, uint8_t *corrected_color) {
     uint32_t col = pixel_index % dither->width;
     uint32_t error_index = dither->current_row_begin + col;
     QuantError error = dither->errors[error_index];
 
     int r = error.r / DITHER_COEF_DIVIDER + color[COLOR_R];
-    color[COLOR_R] = CLAMP(r, 255);
+    corrected_color[COLOR_R] = CLAMP(r, 255);
     int g = error.g / DITHER_COEF_DIVIDER + color[COLOR_G];
-    color[COLOR_G] = CLAMP(g, 255);
+    corrected_color[COLOR_G] = CLAMP(g, 255);
     int b = error.b / DITHER_COEF_DIVIDER + color[COLOR_B];
-    color[COLOR_B] = CLAMP(b, 255);
+    corrected_color[COLOR_B] = CLAMP(b, 255);
 }
