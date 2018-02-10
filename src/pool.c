@@ -5,19 +5,18 @@
 #define POOL_BLOCK_SIZE 100000
 
 struct PoolBlock {
-    // block precedent ou NULL, permet de tout desallouer
+    /** previous block or NULL if block is first */
     struct PoolBlock *prev;
-    // adresse de debut du block
+    /** start of memory chunk */
     Node *begin;
-    // adresse de la portion non utilisee
+    /** position of remaining memory */
     Node *next;
-    // adresse de fin (evite le recalcul)
+    /** end of memory chunk */
     Node *end;
 };
 
-/** Allocates and inits @block */
 static void pool_block_init(PoolBlock *block, PoolBlock *prev) {
-    // noeuds initialises a 0
+    // calloc: init nodes with 0s
     block->begin = calloc(POOL_BLOCK_SIZE, sizeof(Node));
 
     block->next = block->begin;
@@ -27,30 +26,30 @@ static void pool_block_init(PoolBlock *block, PoolBlock *prev) {
 }
 
 void pool_init(Pool *pool) {
-    pool->block = malloc(sizeof(PoolBlock));
+    *pool = malloc(sizeof(PoolBlock));
 
-    pool_block_init(pool->block, NULL);
+    pool_block_init(*pool, NULL);
 }
 
 Node *pool_next(Pool *pool) {
     // if current block if fully used, alloc new block
-    if (pool->block->next == pool->block->end) {
+    if ((*pool)->next == (*pool)->end) {
         PoolBlock *new_block = malloc(sizeof(PoolBlock));
-        pool_block_init(new_block, pool->block);
-        pool->block = new_block;
+        pool_block_init(new_block, (*pool));
+        (*pool) = new_block;
     }
-    return (pool->block->next)++;
+    return ((*pool)->next)++;
 }
 
 void pool_clear(Pool *pool) {
-    PoolBlock *block = pool->block;
+    PoolBlock *block = (*pool);
     // walk up the chain of allocated blocks
     while (block != NULL) {
-        PoolBlock *prev = pool->block;
+        PoolBlock *prev = (*pool);
         prev = block->prev;
         free(block->begin);
         free(block);
         block = prev;
     }
-    pool->block = NULL;
+    (*pool) = NULL;
 }
