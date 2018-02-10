@@ -13,12 +13,17 @@
 void read_img_from_png(char *filename, FlatImg *img) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        fprintf(stderr, "Could not open input file \"%s\"\n", filename);
+        fprintf(stderr, "Could not open file \"%s\"\n", filename);
         exit(EXIT_FAILURE);
     }
     
     uint8_t signature[8];
-    fread(signature, 1, 8, file);
+    
+    if (!fread(signature, 1, 8, file)) {
+        fprintf(stderr, "Could not read file \"%s\"\n", filename);
+        fclose(file);
+        exit(EXIT_FAILURE);
+    }
     if (png_sig_cmp(signature, 0, 8) != 0) {
         fprintf(stderr, "\"%s\" is not a valid PNG file\n", filename);
         fclose(file);
@@ -73,7 +78,7 @@ void read_img_from_png(char *filename, FlatImg *img) {
 void write_img_to_png(char *filename, IndexedImg *img) {
     FILE *file = fopen(filename, "wb");
     if (!file) {
-        fprintf(stderr, "Could not open output file \"%s\"\n", filename);
+        fprintf(stderr, "Could not open file \"%s\"\n", filename);
         exit(EXIT_FAILURE);
     }
 

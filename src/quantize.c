@@ -84,7 +84,7 @@ to walk down the octree to find the cluster they belong to.
 */
 static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palette_size, uint8_t *color) {
     unsigned int smallest_diff = UINT_MAX;
-    unsigned int palette_index;
+    unsigned int palette_index = 0;
     for (int i = 0; i < palette_size; i += COLOR_CHANNELS_COUNT) {
         unsigned int diff = color_diff(color, &palette[i]);
         // if we find the exact color, early return its index
