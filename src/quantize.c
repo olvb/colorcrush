@@ -216,9 +216,6 @@ void img_quantize(
             dither_diffuse_error(&dither, pixel_index, corrected_color, palette_color);
             
             pixel_index++;
-            if (pixel_index % indexed_img->width == 0) {
-                dither_next_row(&dither);
-            }
         }
         dither_clear(&dither);
     }
