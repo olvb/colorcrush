@@ -42,12 +42,23 @@ void read_img_from_png(char *filename, FlatImg *img) {
     uint32_t width, height;
     int bit_depth, color_type;
     png_get_IHDR(png, png_info, &width, &height, &bit_depth, &color_type, NULL, NULL, NULL);
-    if (color_type != PNG_COLOR_TYPE_RGB) {
-        fprintf(stderr, "Only flat (without palette) RGB PNGs are supported\n");
+    if (color_type == PNG_COLOR_TYPE_PALETTE) {
+        png_set_palette_to_rgb(png);
+    } else if (color_type != PNG_COLOR_TYPE_RGB) {
+        fprintf(stderr, "Only RGB or palette PNGs are supported\n");
         fclose(file);
         exit(EXIT_FAILURE);
     }
+
     assert(bit_depth <= 8);
+    if (bit_depth < 8) {
+        png_set_packing(png);
+    }
+    if (color_type & PNG_COLOR_MASK_ALPHA) {
+        png_set_strip_alpha(png);
+    }
+
+    png_read_update_info(png, png_info);
 
     size_t row_size = png_get_rowbytes(png, png_info);
     unsigned int channels_count = png_get_channels(png, png_info);
@@ -123,7 +134,11 @@ void write_img_to_png(char *filename, IndexedImg *img) {
     png_set_PLTE(png, png_info, palette, img->colors_count);
 
     png_write_info(png, png_info);
-
+    
+    if (bit_depth < 8) {
+        png_set_packing(png);
+    }
+    
     // pointers to img data
     png_bytep row = malloc(img->width * sizeof(png_byte));
     for (uint32_t y = 0; y < img->height; y++) {
