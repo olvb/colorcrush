@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <math.h>
 #include <stdint.h>
+#include <limits.h>
 #include <assert.h>
 #include "quantize.h"
 #include "color.h"
@@ -36,11 +37,11 @@ Fills @palette with colors taken from the leaves of the descendants of @node
 */
 static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, Node *node) {
     if (node->is_leaf) {
-        node->palette_index = palette_size / 3;
-        palette[palette_size + COLOR_R] = (uint8_t) round((double) node->r / (double) node->pixels_count);
-        palette[palette_size + COLOR_G] = (uint8_t) round((double) node->g / (double) node->pixels_count);
-        palette[palette_size + COLOR_B] = (uint8_t) round((double) node->b / (double) node->pixels_count);
-        return palette_size + 3;
+        node->palette_index = palette_size / COLOR_CHANNELS_COUNT;
+        palette[palette_size + COLOR_R] = round((double) node->color[COLOR_R] / (double) node->pixels_count);
+        palette[palette_size + COLOR_G] = round((double) node->color[COLOR_G] / (double) node->pixels_count);
+        palette[palette_size + COLOR_B] = round((double) node->color[COLOR_B] / (double) node->pixels_count);
+        return palette_size + COLOR_CHANNELS_COUNT;
     }
 
     for (int i = 0; i < 8; i++) {
@@ -82,13 +83,13 @@ Much slower than index_of_cluster_color but necessary because in case of ditheri
 to walk down the octree to find the cluster they belong to.
 */
 static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palette_size, uint8_t *color) {
-    unsigned int smallest_diff = MAX_COLOR_DIFF;
+    unsigned int smallest_diff = UINT_MAX;
     unsigned int palette_index;
-    for (int i = 0; i < palette_size; i+=3) {
+    for (int i = 0; i < palette_size; i += COLOR_CHANNELS_COUNT) {
         unsigned int diff = color_diff(color, &palette[i]);
         // if we find the exact color, early return its index
         if (diff == 0) {
-            return (unsigned int) i / 3;
+            return (unsigned int) i / COLOR_CHANNELS_COUNT;
         }
         if (diff < smallest_diff) {
             smallest_diff = diff;
@@ -96,8 +97,8 @@ static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palett
         }
     }
     
-    assert(smallest_diff != MAX_COLOR_DIFF);
-    return palette_index / 3;
+    assert(smallest_diff != UINT_MAX);
+    return palette_index / COLOR_CHANNELS_COUNT;
 }
 
 void img_quantize(
@@ -117,7 +118,7 @@ void img_quantize(
 
     unsigned int colors_count = 0;
     unsigned int max_heap_size = 0;
-    for (uint32_t i = 0; i < data_size; i += 3) {
+    for (uint32_t i = 0; i < data_size; i += COLOR_CHANNELS_COUNT) {
         Node *node = octree;
         uint8_t *color = &data[i];
         // walk down the octree creating new nodes as we go
@@ -143,9 +144,9 @@ void img_quantize(
         assert(node->is_leaf);
         node->pixels_count++;
         // update accumulated color values
-        node->r += color[COLOR_R];
-        node->g += color[COLOR_G];
-        node->b += color[COLOR_B];
+        node->color[COLOR_R] += color[COLOR_R];
+        node->color[COLOR_G] += color[COLOR_G];
+        node->color[COLOR_B] += color[COLOR_B];
     }
 
     // step 2: reduce the octree (ie drop colors)
@@ -193,7 +194,7 @@ void img_quantize(
     // step 3: color index pixels
     uint32_t pixel_index = 0;
     if (!use_dither) {
-        for (uint32_t i = 0; i < data_size; i += 3) {
+        for (uint32_t i = 0; i < data_size; i += COLOR_CHANNELS_COUNT) {
             uint8_t* color = &data[i];
             uint8_t palette_index = index_of_cluster_color(octree, max_octree_depth, color);
             indexed_img->data[pixel_index] = palette_index;
@@ -203,17 +204,16 @@ void img_quantize(
         Dither dither;
         dither_init(&dither, indexed_img->width);
         
-        uint8_t corrected_src_color[COLOR_CHANNELS_COUNT];
+        uint8_t corrected_color[COLOR_CHANNELS_COUNT];
 
-        for (uint32_t i = 0; i < data_size; i += 3) {
+        for (uint32_t i = 0; i < data_size; i += COLOR_CHANNELS_COUNT) {
             uint8_t *src_color = &data[i];
-            dither_apply_error(&dither, pixel_index, src_color, corrected_src_color);
+            dither_apply_error(&dither, pixel_index, src_color, corrected_color);
 
-            uint8_t palette_index = index_of_nearest_color(indexed_img->palette, palette_size, corrected_src_color);
-            
+            uint8_t palette_index = index_of_nearest_color(indexed_img->palette, palette_size, corrected_color);
             indexed_img->data[pixel_index] = palette_index;
-            uint8_t *rounded_color = &indexed_img->palette[palette_index * 3];
-            dither_diffuse_error(&dither, pixel_index, corrected_src_color, rounded_color);
+            uint8_t *palette_color = &indexed_img->palette[palette_index * COLOR_CHANNELS_COUNT];
+            dither_diffuse_error(&dither, pixel_index, corrected_color, palette_color);
             
             pixel_index++;
             if (pixel_index % indexed_img->width == 0) {

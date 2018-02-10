@@ -1,13 +1,12 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
+#include "color.h"
 
 /** Node of the colorspace octree */
 typedef struct Node {
     /** Accumulated color values */
-    unsigned int r;
-    unsigned int g;
-    unsigned int b;
+    unsigned int color[COLOR_CHANNELS_COUNT];
     /** Number of pixels in node and its descendants */
     uint32_t pixels_count;
     /** Index of color in palette */

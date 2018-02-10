@@ -43,10 +43,10 @@ unsigned int node_reduce(Node *node) {
 
         Node *child_node = node->children[i];
         assert(child_node->is_leaf);
-    
-        node->r += child_node->r;
-        node->g += child_node->g;
-        node->b += child_node->b;
+
+        node->color[COLOR_R] += child_node->color[COLOR_R];
+        node->color[COLOR_G] += child_node->color[COLOR_G];
+        node->color[COLOR_B] += child_node->color[COLOR_B];
         node->children[i] = NULL;
 
         removed_leaves_count++;
