@@ -3,7 +3,11 @@ LD = $(CC)
 CFLAGS = -std=c11 -Wall -Wextra -Wno-sign-compare
 CFLAGS_DBG = -g -DDEBUG
 CFLAGS_RLS = -O2 -DNDEBUG
-CFLAGS += $(CFLAGS_RLS)
+ifeq ($(DEBUG), 1)
+	CFLAGS += $(CFLAGS_DBG)
+else
+	CFLAGS += $(CFLAGS_RLS)
+endif
 LDFLAGS = -lpng -lz -lm
 
 TARGET = colorcrush
