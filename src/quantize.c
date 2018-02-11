@@ -103,13 +103,13 @@ Fills @palette with colors taken from the leaves of the descendants of @node
 */
 static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, Node *node) {
     if (node->is_leaf) {
-        node->palette_index = palette_size / COLOR_CHANNELS_COUNT;
+        node->palette_index = palette_size / 3;
         
         palette[palette_size + COLOR_R] = round((double) node->color_sum[COLOR_R] / (double) node->pixels_count);
         palette[palette_size + COLOR_G] = round((double) node->color_sum[COLOR_G] / (double) node->pixels_count);
         palette[palette_size + COLOR_B] = round((double) node->color_sum[COLOR_B] / (double) node->pixels_count);
         
-        return palette_size + COLOR_CHANNELS_COUNT;
+        return palette_size + 3;
     }
 
     for (int i = 0; i < 8; i++) {
@@ -154,12 +154,12 @@ to walk down the octree to find the cluster they belong to.
 static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palette_size, uint8_t *color) {
     uint32_t smallest_diff = UINT32_MAX;
     unsigned int palette_index = 0;
-    for (int i = 0; i < palette_size; i += COLOR_CHANNELS_COUNT) {
+    for (int i = 0; i < palette_size; i += 3) {
         uint32_t diff = color_diff_uint8(color, &palette[i]);
         // if we find the exact color or a super close one, early return its index
         //(our color diff method is not very acurate anyway)
         if (diff < COLOR_DIFF_THRESHOLD) {
-            return i / COLOR_CHANNELS_COUNT;
+            return i / 3;
         }
         if (diff < smallest_diff) {
             smallest_diff = diff;
@@ -168,7 +168,7 @@ static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palett
     }
     
     assert(smallest_diff != UINT32_MAX);
-    return palette_index / COLOR_CHANNELS_COUNT;
+    return palette_index / 3;
 }
 
 void img_quantize(
@@ -179,7 +179,7 @@ void img_quantize(
     IndexedImg *indexed_img
 ) {
     uint8_t *data = flat_img->data;
-    uint32_t data_size = flat_img->width * flat_img->height * COLOR_CHANNELS_COUNT;
+    uint32_t data_size = flat_img->width * flat_img->height * 3;
 
     // Step 1: build an octree subdividing the color space of the image
     Pool pool;
@@ -189,7 +189,7 @@ void img_quantize(
     unsigned int max_heap_size = 0;
     unsigned int leaves_count = 0;
     // for each pixel, build the octree path down to the leaf of its color
-    for (uint32_t i = 0; i < data_size; i += COLOR_CHANNELS_COUNT) {
+    for (uint32_t i = 0; i < data_size; i += 3) {
         Node *node = octree;
         uint8_t *color = &data[i];
 
@@ -253,7 +253,7 @@ void img_quantize(
     // Step 3: assign palette colors to pixels
     uint32_t pixel_index = 0;
     if (!use_dither) {
-        for (uint32_t i = 0; i < data_size; i += COLOR_CHANNELS_COUNT) {
+        for (uint32_t i = 0; i < data_size; i += 3) {
             uint8_t* color = &data[i];
             uint8_t palette_index = index_of_cluster_color(octree, octree_depth, color);
             indexed_img->data[pixel_index] = palette_index;
@@ -264,8 +264,8 @@ void img_quantize(
         Dither dither;
         dither_init(&dither, indexed_img->width);
         
-        uint8_t dither_color[COLOR_CHANNELS_COUNT];
-        for (uint32_t i = 0; i < data_size; i += COLOR_CHANNELS_COUNT) {
+        uint8_t dither_color[3];
+        for (uint32_t i = 0; i < data_size; i += 3) {
             // apply dither error
             uint8_t *source_color = &data[i];
             dither_apply_error(&dither, pixel_index, source_color, dither_color);
@@ -275,7 +275,7 @@ void img_quantize(
             indexed_img->data[pixel_index] = palette_index;
 
             // diffuse error
-            uint8_t *palette_color = &indexed_img->palette[palette_index * COLOR_CHANNELS_COUNT];
+            uint8_t *palette_color = &indexed_img->palette[palette_index * 3];
             dither_diffuse_error(&dither, pixel_index, dither_color, palette_color);
             pixel_index++;
         }
