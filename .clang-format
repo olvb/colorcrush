@@ -1,0 +1,5 @@
+---
+BasedOnStyle: WebKit
+BreakBeforeBraces: Attach
+MaxEmptyLinesToKeep: 1
+PointerAlignment: Right

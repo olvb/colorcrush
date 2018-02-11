@@ -1,7 +1,8 @@
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
 #include <assert.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "dither.h"
 
 #define DITHER_HEIGHT 2
@@ -37,7 +38,7 @@ void dither_clear(Dither *dither) {
 static void dither_shift_row(Dither *dither) {
     // wipe current row error values
     memset(dither->errors + dither->current_row_begin, 0, sizeof(int) * dither->width * 3);
-    
+
     // shift current row
     dither->current_row = (dither->current_row + 1) % DITHER_HEIGHT;
     dither->current_row_begin = dither->current_row * dither->width * 3;
@@ -45,53 +46,52 @@ static void dither_shift_row(Dither *dither) {
 
 void dither_diffuse_error(
     Dither *dither, uint32_t pixel_index,
-    uint8_t *src_color, uint8_t *rounded_color
-) {
+    uint8_t *src_color, uint8_t *rounded_color) {
     // compute error
-    int r_error = (int) src_color[COLOR_R] - rounded_color[COLOR_R];
-    int g_error = (int) src_color[COLOR_G] - rounded_color[COLOR_G];
-    int b_error = (int) src_color[COLOR_B] - rounded_color[COLOR_B];
-    
+    int r_error = (int)src_color[COLOR_R] - rounded_color[COLOR_R];
+    int g_error = (int)src_color[COLOR_G] - rounded_color[COLOR_G];
+    int b_error = (int)src_color[COLOR_B] - rounded_color[COLOR_B];
+
     uint32_t col = pixel_index % dither->width;
     uint32_t error_index;
-    
-    #if DITHER_COEF_BOTTOM
-        error_index = dither->current_row_begin + col * 3;
-        dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_BOTTOM;
-        dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_BOTTOM;
-        dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_BOTTOM;
-    #endif
-    
-    #if DITHER_COEF_RIGHT
-        if (col != dither->width - 1) {
-            error_index = dither->current_row_begin + col * 3 + 3;
-            dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_RIGHT;
-            dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_RIGHT;
-            dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_RIGHT;
-        }
-    #endif
 
-    #if DITHER_COEF_BOTTOM_RIGHT || DITHER_COEF_BOTTOM_LEFT
-        uint32_t next_row_begin = ((dither->current_row + 1) % DITHER_HEIGHT) * dither->width * 3;
-    #endif
+#if DITHER_COEF_BOTTOM
+    error_index = dither->current_row_begin + col * 3;
+    dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_BOTTOM;
+    dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_BOTTOM;
+    dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_BOTTOM;
+#endif
 
-    #if DITHER_COEF_BOTTOM_RIGHT
-        if (col != dither->width - 1) {
-            error_index = next_row_begin + col * 3 + 3;
-            dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_BOTTOM_RIGHT;
-            dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_BOTTOM_RIGHT;
-            dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_BOTTOM_RIGHT;
-        }
-    #endif
+#if DITHER_COEF_RIGHT
+    if (col != dither->width - 1) {
+        error_index = dither->current_row_begin + col * 3 + 3;
+        dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_RIGHT;
+        dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_RIGHT;
+        dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_RIGHT;
+    }
+#endif
 
-    #if DITHER_COEF_BOTTOM_LEFT
-        if (col != 0) {
-            error_index = next_row_begin + col * 3 - 3;
-            dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_BOTTOM_LEFT;
-            dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_BOTTOM_LEFT;
-            dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_BOTTOM_LEFT;
-        }
-    #endif
+#if DITHER_COEF_BOTTOM_RIGHT || DITHER_COEF_BOTTOM_LEFT
+    uint32_t next_row_begin = ((dither->current_row + 1) % DITHER_HEIGHT) * dither->width * 3;
+#endif
+
+#if DITHER_COEF_BOTTOM_RIGHT
+    if (col != dither->width - 1) {
+        error_index = next_row_begin + col * 3 + 3;
+        dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_BOTTOM_RIGHT;
+        dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_BOTTOM_RIGHT;
+        dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_BOTTOM_RIGHT;
+    }
+#endif
+
+#if DITHER_COEF_BOTTOM_LEFT
+    if (col != 0) {
+        error_index = next_row_begin + col * 3 - 3;
+        dither->errors[error_index + COLOR_R] += r_error * DITHER_COEF_BOTTOM_LEFT;
+        dither->errors[error_index + COLOR_G] += g_error * DITHER_COEF_BOTTOM_LEFT;
+        dither->errors[error_index + COLOR_B] += b_error * DITHER_COEF_BOTTOM_LEFT;
+    }
+#endif
 
     if ((pixel_index + 1) % dither->width == 0) {
         dither_shift_row(dither);

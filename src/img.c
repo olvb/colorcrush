@@ -1,7 +1,8 @@
-#include <stdlib.h>
 #include <stddef.h>
-#include "img.h"
+#include <stdlib.h>
+
 #include "color.h"
+#include "img.h"
 
 void indexed_img_init(IndexedImg *img, uint32_t width, uint32_t height, unsigned int colors_count) {
     img->width = width;

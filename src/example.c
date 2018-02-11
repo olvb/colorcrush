@@ -1,12 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <limits.h>
 #include <assert.h>
-#include <math.h>
 #include <getopt.h>
+#include <limits.h>
+#include <math.h>
 #include <png.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "img.h"
 #include "quantize.h"
 
@@ -16,9 +17,9 @@ void read_img_from_png(char *filename, FlatImg *img) {
         fprintf(stderr, "Could not open file \"%s\"\n", filename);
         exit(EXIT_FAILURE);
     }
-    
+
     uint8_t signature[8];
-    
+
     if (!fread(signature, 1, 8, file)) {
         fprintf(stderr, "Could not read file \"%s\"\n", filename);
         fclose(file);
@@ -38,7 +39,7 @@ void read_img_from_png(char *filename, FlatImg *img) {
 
     png_set_sig_bytes(png, 8);
     png_read_info(png, png_info);
-    
+
     uint32_t width, height;
     int bit_depth, color_type;
     png_get_IHDR(png, png_info, &width, &height, &bit_depth, &color_type, NULL, NULL, NULL);
@@ -76,7 +77,7 @@ void read_img_from_png(char *filename, FlatImg *img) {
     // png data to internal data
     uint32_t pixels_count = width * height;
     for (uint32_t i = 0; i < pixels_count; i++) {
-        img->data[i * 3 ] = png_data[i * channels_count];
+        img->data[i * 3] = png_data[i * channels_count];
         img->data[i * 3 + 1] = png_data[i * channels_count + 1];
         img->data[i * 3 + 2] = png_data[i * channels_count + 2];
     }
@@ -98,7 +99,7 @@ void write_img_to_png(char *filename, IndexedImg *img) {
     jmp_buf png_jmp;
     setjmp(png_jmp);
     png_init_io(png, file);
-    
+
     unsigned int bit_depth = ceil(log2(img->colors_count));
     assert(bit_depth <= 8);
     // valid PNG bit depths: 1, 2, 4, 8
@@ -121,11 +122,10 @@ void write_img_to_png(char *filename, IndexedImg *img) {
         PNG_COLOR_TYPE_PALETTE,
         PNG_INTERLACE_NONE,
         PNG_COMPRESSION_TYPE_BASE,
-        PNG_FILTER_TYPE_BASE
-    );
+        PNG_FILTER_TYPE_BASE);
 
     // internal palette to png palette
-    png_color* palette = png_malloc(png, img->colors_count * sizeof(png_color));
+    png_color *palette = png_malloc(png, img->colors_count * sizeof(png_color));
     for (int i = 0; i < img->colors_count; i++) {
         palette[i].red = img->palette[i * 3];
         palette[i].green = img->palette[i * 3 + 1];
@@ -134,11 +134,11 @@ void write_img_to_png(char *filename, IndexedImg *img) {
     png_set_PLTE(png, png_info, palette, img->colors_count);
 
     png_write_info(png, png_info);
-    
+
     if (bit_depth < 8) {
         png_set_packing(png);
     }
-    
+
     // pointers to img data
     png_bytep row = malloc(img->width * sizeof(png_byte));
     for (uint32_t y = 0; y < img->height; y++) {

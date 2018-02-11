@@ -1,14 +1,15 @@
-#include <stddef.h>
-#include <math.h>
-#include <stdint.h>
-#include <limits.h>
 #include <assert.h>
-#include "quantize.h"
+#include <limits.h>
+#include <math.h>
+#include <stddef.h>
+#include <stdint.h>
+
 #include "color.h"
+#include "dither.h"
+#include "heap.h"
 #include "node.h"
 #include "pool.h"
-#include "heap.h"
-#include "dither.h"
+#include "quantize.h"
 
 /**
 @returns index of child in octree at a given @level for @color, by checking the value of the bit signifiant
@@ -58,7 +59,7 @@ static void fill_heap(Heap *heap, Node *node) {
         }
 
         Node *child = node->children[i];
-        if(!child->is_leaf) {
+        if (!child->is_leaf) {
             fill_heap(heap, child);
         }
     }
@@ -77,7 +78,7 @@ static unsigned int reduce_node(Node *node) {
         if (node->children[i] == NULL) {
             continue;
         }
-        
+
         Node *child = node->children[i];
         // reduce child if not a leaf
         if (!child->is_leaf) {
@@ -104,11 +105,11 @@ Fills @palette with colors taken from the leaves of the descendants of @node
 static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, Node *node) {
     if (node->is_leaf) {
         node->palette_index = palette_size / 3;
-        
-        palette[palette_size + COLOR_R] = round((double) node->color_sum[COLOR_R] / (double) node->pixels_count);
-        palette[palette_size + COLOR_G] = round((double) node->color_sum[COLOR_G] / (double) node->pixels_count);
-        palette[palette_size + COLOR_B] = round((double) node->color_sum[COLOR_B] / (double) node->pixels_count);
-        
+
+        palette[palette_size + COLOR_R] = round((double)node->color_sum[COLOR_R] / (double)node->pixels_count);
+        palette[palette_size + COLOR_G] = round((double)node->color_sum[COLOR_G] / (double)node->pixels_count);
+        palette[palette_size + COLOR_B] = round((double)node->color_sum[COLOR_B] / (double)node->pixels_count);
+
         return palette_size + 3;
     }
 
@@ -133,7 +134,7 @@ static uint8_t index_of_cluster_color(Node *octree, int octree_depth, uint8_t *c
         if (node->children[child_index] == NULL) {
             continue;
         }
-        
+
         node = node->children[child_index];
         if (node->is_leaf) {
             break;
@@ -151,7 +152,7 @@ Much slower than index_of_cluster_color but necessary because in case of ditheri
 (and in most cases will) generate new colors that were not in the original image, which makes it impossible
 to walk down the octree to find the cluster they belong to.
 */
-static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palette_size, uint8_t *color) {
+static unsigned int index_of_nearest_color(uint8_t *palette, unsigned int palette_size, uint8_t *color) {
     uint32_t smallest_diff = UINT32_MAX;
     unsigned int palette_index = 0;
     for (int i = 0; i < palette_size; i += 3) {
@@ -166,7 +167,7 @@ static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palett
             palette_index = i;
         }
     }
-    
+
     assert(smallest_diff != UINT32_MAX);
     return palette_index / 3;
 }
@@ -176,8 +177,7 @@ void img_quantize(
     unsigned int max_colors_count,
     unsigned int octree_depth,
     bool use_dither,
-    IndexedImg *indexed_img
-) {
+    IndexedImg *indexed_img) {
     uint8_t *data = flat_img->data;
     uint32_t data_size = flat_img->width * flat_img->height * 3;
 
@@ -232,7 +232,7 @@ void img_quantize(
     Heap heap;
     heap_init(&heap, max_heap_size);
     fill_heap(&heap, octree);
-    
+
     // reduce node, high error values first
     while (leaves_count > max_colors_count) {
         Node *node = heap_pop(&heap);
@@ -249,12 +249,12 @@ void img_quantize(
     indexed_img_init(indexed_img, flat_img->width, flat_img->height, leaves_count);
     // fill palette with colors from the remaining leaves
     unsigned int palette_size = fill_palette(indexed_img->palette, 0, octree);
-    
+
     // Step 3: assign palette colors to pixels
     uint32_t pixel_index = 0;
     if (!use_dither) {
         for (uint32_t i = 0; i < data_size; i += 3) {
-            uint8_t* color = &data[i];
+            uint8_t *color = &data[i];
             uint8_t palette_index = index_of_cluster_color(octree, octree_depth, color);
             indexed_img->data[pixel_index] = palette_index;
 
@@ -263,7 +263,7 @@ void img_quantize(
     } else {
         Dither dither;
         dither_init(&dither, indexed_img->width);
-        
+
         uint8_t dither_color[3];
         for (uint32_t i = 0; i < data_size; i += 3) {
             // apply dither error

@@ -1,5 +1,6 @@
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
+
 #include "heap.h"
 
 void heap_init(Heap *heap, size_t max_size) {
@@ -26,7 +27,7 @@ static int node_cmp(Node *lhs, Node *rhs) {
     if (lhs->pixels_count < rhs->pixels_count) {
         return +1;
     }
-    
+
     return 0;
 }
 

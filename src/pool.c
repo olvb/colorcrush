@@ -1,5 +1,6 @@
-#include <stdlib.h>
 #include <stddef.h>
+#include <stdlib.h>
+
 #include "pool.h"
 
 #define POOL_BLOCK_SIZE 100000

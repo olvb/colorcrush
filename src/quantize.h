@@ -1,5 +1,6 @@
 #pragma once
 #include <stdbool.h>
+
 #include "img.h"
 
 /**
@@ -17,5 +18,4 @@ void img_quantize(
     unsigned int max_colors_count,
     unsigned int max_octree_depth,
     bool use_dither,
-    IndexedImg *indexed_img
-);
+    IndexedImg *indexed_img);

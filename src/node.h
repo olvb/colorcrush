@@ -1,6 +1,7 @@
 #pragma once
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+
 #include "color.h"
 
 /** Node of the colorspace octree */
