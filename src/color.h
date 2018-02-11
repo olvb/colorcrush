@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define COLOR_CHANNELS_COUNT 3
 #define COLOR_R 0
 #define COLOR_G 1
 #define COLOR_B 2

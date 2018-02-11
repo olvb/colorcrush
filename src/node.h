@@ -8,7 +8,7 @@ typedef struct Node {
     /** Pointers to children */
     struct Node *children[8];
     bool is_leaf;
-    uint32_t color_sum[COLOR_CHANNELS_COUNT];
+    uint32_t color_sum[3];
     uint32_t pixels_count;
     uint64_t error;
     /** Index of color in palette (initially null)*/
