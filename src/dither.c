@@ -5,11 +5,21 @@
 #include "dither.h"
 
 #define DITHER_HEIGHT 2
+/*
+// sierra lite matrix
 #define DITHER_COEF_RIGHT 2
 #define DITHER_COEF_BOTTOM 1
 #define DITHER_COEF_BOTTOM_LEFT 1
 #define DITHER_COEF_BOTTOM_RIGHT 0
 #define DITHER_COEF_DIVIDER 4
+*/
+
+// floyd steinberg matrix
+#define DITHER_COEF_RIGHT 7
+#define DITHER_COEF_BOTTOM 5
+#define DITHER_COEF_BOTTOM_LEFT 3
+#define DITHER_COEF_BOTTOM_RIGHT 1
+#define DITHER_COEF_DIVIDER 16
 
 void dither_init(Dither *dither, uint32_t width) {
     dither->width = width;
