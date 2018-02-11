@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <limits.h>
 #include <assert.h>
-#include <stdio.h>
 #include "quantize.h"
 #include "color.h"
 #include "node.h"
@@ -144,6 +143,7 @@ static uint8_t index_of_cluster_color(Node *octree, int octree_depth, uint8_t *c
     return node->palette_index;
 }
 
+#define COLOR_DIFF_THRESHOLD 10
 /**
 @returns palette index of the palette color nearest to @color.
 Much slower than index_of_cluster_color but necessary because in case of dithering error diffusion may
@@ -155,8 +155,9 @@ static unsigned int index_of_nearest_color(uint8_t* palette, unsigned int palett
     unsigned int palette_index = 0;
     for (int i = 0; i < palette_size; i += COLOR_CHANNELS_COUNT) {
         uint32_t diff = color_diff_uint8(color, &palette[i]);
-        // if we find the exact color, early return its index
-        if (diff == 0) {
+        // if we find the exact color or a super close one, early return its index
+        //(our color diff method is not very acurate anyway)
+        if (diff < COLOR_DIFF_THRESHOLD) {
             return i / COLOR_CHANNELS_COUNT;
         }
         if (diff < smallest_diff) {
