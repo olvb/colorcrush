@@ -50,6 +50,8 @@ static void compute_octree_error(Node *node) {
 static void fill_heap(Heap *heap, Node *node) {
     assert(!node->is_leaf);
 
+    heap_push(heap, node);
+
     for (int i = 0; i < 8; i++) {
         if (node->children[i] == NULL) {
             continue;
@@ -57,7 +59,6 @@ static void fill_heap(Heap *heap, Node *node) {
 
         Node *child = node->children[i];
         if(!child->is_leaf) {
-            heap_push(heap, child);
             fill_heap(heap, child);
         }
     }
