@@ -7,5 +7,5 @@
 #define COLOR_G 1
 #define COLOR_B 2
 
-/** @returns an evaluation of the difference between @lhs and @rhs */
-unsigned int color_diff(uint8_t *lhs, uint8_t *rhs);
+uint32_t color_diff_uint8(uint8_t *lhs, uint8_t *rhs);
+uint64_t color_diff_uint32(uint32_t *lhs, uint32_t *rhs);

@@ -1,17 +1,22 @@
 #include "color.h"
+#include "stdint.h"
 
 /**
-this function is somewhat problematic because it does not take into account the human eye's sensibility
-to different colors, but even more because it will evaluate the different between (100, 0, 0) and (101, 0, 0)
-to be greater than the one between (100, 0, 0) and (50, 50, 0)
-In pratices it seems to seldom cause any artifacts though.
+theses two functions are somewhat problematics because they do not take into account the human eye's sensibility
+to different colors, but even more because they will evaluate the difference between (100, 0, 0) and (101, 0, 0)
+to be greater than the one between (100, 0, 0) and (50, 50, 0). In pratices it seems to seldom cause any artifacts though.
+EDIT: the addition of YUV coefficients provides a better approximation without impacting performance
 */
-unsigned int color_diff(uint8_t *lhs, uint8_t *rhs) {
-    int delta_r = (int) lhs[COLOR_R] - rhs[COLOR_R];
-    int delta_g = (int) lhs[COLOR_G] - rhs[COLOR_G];
-    int delta_b = (int) lhs[COLOR_B] - rhs[COLOR_B];
-    // Alternate calculus, less problematic but slower:
-    //int r_mean = ((int) lhs[COLOR_R] + rhs[COLOR_R]) >> 2;
-    //return (unsigned int) (((512 + r_mean) * delta_r * delta_r) >> 8) + 4 * delta_g * delta_g + (((767 - r_mean) * delta_b * delta_b) >> 8);
-    return delta_r * delta_r + delta_g * delta_g + delta_b * delta_b;
+uint32_t color_diff_uint8(uint8_t *lhs, uint8_t *rhs) {
+    int32_t delta_r = (int32_t) lhs[COLOR_R] - rhs[COLOR_R];
+    int32_t delta_g = (int32_t) lhs[COLOR_G] - rhs[COLOR_G];
+    int32_t delta_b = (int32_t) lhs[COLOR_B] - rhs[COLOR_B];
+    return (uint32_t) (3 * delta_r * delta_r) + (uint32_t) (6 * delta_g * delta_g) + (uint32_t) (delta_b * delta_b);
+}
+
+uint64_t color_diff_uint32(uint32_t *lhs, uint32_t *rhs) {
+    int64_t delta_r = (int64_t) lhs[COLOR_R] - rhs[COLOR_R];
+    int64_t delta_g = (int64_t) lhs[COLOR_G] - rhs[COLOR_G];
+    int64_t delta_b = (int64_t) lhs[COLOR_B] - rhs[COLOR_B];
+    return (uint64_t) (3 * delta_r * delta_r) + (uint64_t) (6 * delta_g * delta_g) + (uint64_t) (delta_b * delta_b);
 }
