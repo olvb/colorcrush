@@ -49,6 +49,7 @@ Note that even without using dither, looking for the closest palette color would
 [art_imgk]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_imgk.png
 
 *ImageMagick command: `convert in.png -colors 256 png8:out.png`*
+
 *Sample images from [imagecompression.info](https://imagecompression.info/test_images/)*
 
 ## Caveats
