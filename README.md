@@ -43,7 +43,7 @@ Note that even without using dither, looking for the closest palette color would
 [art_256_crop]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_256_cropped.png
 [art_256_d_crop]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_256_d_cropped.png
 [art_imgk_crop]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_imgk_cropped.png
-[night]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial.png
+[art]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial.png
 [art_256]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_256.png
 [art_256_d]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_256_d.png
 [art_imgk]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_imgk.png
