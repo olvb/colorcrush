@@ -159,13 +159,13 @@ void print_usage_and_exit(char *exec_name) {
     fprintf(stderr, "Usage: %s [options] <in.png> <out.png>\n", exec_name);
     fprintf(stderr, "  -c <colors_count>\tMaximum number of colors in palette [1-256, default: 256]\n");
     fprintf(stderr, "  -d\t\t\tUse dithering\n");
-    fprintf(stderr, "  -o <octree_depth>\tMaximum octree depth (lower values can speed up process) [1-8, default: 6]\n");
+    fprintf(stderr, "  -o <octree_depth>\tOctree depth (lower values can yield different results) [1-8, default: 6]\n");
     exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
     unsigned int max_colors_count = 256;
-    unsigned int max_octree_depth = 6;
+    unsigned int octree_depth = 6;
     bool use_dither = false;
 
     char opt;
@@ -182,8 +182,8 @@ int main(int argc, char *argv[]) {
             use_dither = true;
             break;
         case 'o':
-            max_octree_depth = atoi(optarg);
-            if (max_octree_depth < 1 || max_octree_depth > 8) {
+            octree_depth = atoi(optarg);
+            if (octree_depth < 1 || octree_depth > 6) {
                 fprintf(stderr, "Octree depth count must be between 1 and 8\n");
                 exit(EXIT_FAILURE);
             }
@@ -203,7 +203,7 @@ int main(int argc, char *argv[]) {
     FlatImg flat_img;
     read_img_from_png(input_filename, &flat_img);
     IndexedImg indexed_img;
-    img_quantize(&flat_img, max_colors_count, max_octree_depth, use_dither, &indexed_img);
+    img_quantize(&flat_img, max_colors_count, octree_depth, use_dither, &indexed_img);
     write_img_to_png(output_filename, &indexed_img);
 
     flat_img_clear(&flat_img);
