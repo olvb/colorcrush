@@ -2,7 +2,7 @@
 
 Octrees are used in color quantization to divide the image color space into nested clusters. The deepest clusters are the leaves and they represent only one color. The upper nodes represent the average color of their children, taking into account the pixel count of each color. The octree is reduced until the desired number of color is reached, the remaining leaves forming the palette colors.
 
-The method used to decide in which order to the octree is roughly the one described in [this imagemagick document][1]: an error value is assigned to each node, and using heap sort, nodes with higher error values are decimated in priority. The error value of a node is the sum of the difference between its average color and its children's colors (which is itself an average color unless they are leaves). The difference between to color is evaluted to the sum of the squares of the difference between each channel, ponderated by rough YUV-ish coefficients (which give smoother images).
+The method used to decide in which order to the octree is roughly the one described in [this imagemagick document][1]. Qn error value is assigned to each node, and using heap sort, nodes with higher error values are decimated in priority. The error value of a node is the sum of the difference between its average color and its children's colors (which is itself an average color unless they are leaves). The difference between to color is evaluted to the sum of the squares of the difference between each channel, ponderated by rough YUV-ish coefficients (which give smoother images).
 
 [1]: https://www.imagemagick.org/script/quantize.php
 
@@ -36,7 +36,7 @@ Note that even without using dither, looking for the closest palette color would
 
 | Original | 256 colors | 256 colors dithered | ImageMagick |
 | :------: | :--------: | :-----------------: | :---------: |
-| [![][art_crop]][night] | [![][art_256_crop]][art_256] | [![][art_256_d_crop]][art_256_d] | [![][art_imgk_crop]][art_imgk] |
+| [![][art_crop]][art] | [![][art_256_crop]][art_256] | [![][art_256_d_crop]][art_256_d] | [![][art_imgk_crop]][art_imgk] |
 | 454 kB   | 89 kB      | 130 kB              | 195 kB      |
 
 [art_crop]: https://raw.githubusercontent.com/olivierbbb/colorcrush/master/samples/artificial_cropped.png
