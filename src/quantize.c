@@ -12,8 +12,8 @@
 #include "quantize.h"
 
 /**
-@returns index of child in octree at a given @level for @color, by checking the value of the bit signifiant
-at @level for color channel.
+@returns index of child in octree at a given @p level for @p color, by checking the value of the bit
+signifiant at @p level for color channel.
 */
 static unsigned int child_index_for_color(unsigned int level, uint8_t *color) {
     unsigned int index = 0;
@@ -66,7 +66,7 @@ static void fill_heap(Heap *heap, Node *node) {
 }
 
 /**
-Tranforms an immediate leaves parent @node into a leaf by removing its leaves
+Tranforms an immediate leaves parent @p node into a leaf by removing its leaves
 and transfering on itself the cumulated color values of its leaves.
 @returns leaves count reduction (ie. number of deleted leaves minus the newly created leaf)
 */
@@ -98,8 +98,8 @@ static unsigned int reduce_node(Node *node) {
 }
 
 /**
-Fills @palette with colors taken from the leaves of the descendants of @node
-@palette_size : size of the palette before (number of colors * 3)
+Fills @p palette with colors taken from the leaves of the descendants of @p node
+@p palette_size : size of the palette before (number of colors * 3)
 @returns size of the palette after
 */
 static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, Node *node) {
@@ -124,7 +124,7 @@ static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, No
 }
 
 /**
-@returns palette index of @color by walking down @octree until reaching a leaf. Used when no
+@returns palette index of @p color by walking down @p octree until reaching a leaf. Used when no
 dithering is applied (as we are sure to reach a leaf in this case).
 */
 static uint8_t index_of_cluster_color(Node *octree, int octree_depth, uint8_t *color) {
@@ -147,7 +147,7 @@ static uint8_t index_of_cluster_color(Node *octree, int octree_depth, uint8_t *c
 
 #define COLOR_DIFF_THRESHOLD 10
 /**
-@returns palette index of the palette color nearest to @color.
+@returns palette index of the palette color nearest to @p color.
 Much slower than index_of_cluster_color but necessary because in case of dithering error diffusion may
 (and in most cases will) generate new colors that were not in the original image, which makes it impossible
 to walk down the octree to find the cluster they belong to.
