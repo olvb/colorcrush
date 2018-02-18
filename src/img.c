@@ -1,10 +1,9 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "color.h"
-#include "img.h"
+#include "colorcrush.h"
 
-void indexed_img_init(IndexedImg *img, uint32_t width, uint32_t height, unsigned int colors_count) {
+void ccrush_indexed_img_init(ccrush_IndexedImg *img, uint32_t width, uint32_t height, unsigned int colors_count) {
     img->width = width;
     img->height = height;
     img->colors_count = colors_count;
@@ -13,21 +12,21 @@ void indexed_img_init(IndexedImg *img, uint32_t width, uint32_t height, unsigned
     img->data = malloc(sizeof(uint8_t) * width * height);
 }
 
-void indexed_img_clear(IndexedImg *img) {
+void ccrush_indexed_img_clear(ccrush_IndexedImg *img) {
     free(img->palette);
     img->palette = NULL;
     free(img->data);
     img->data = NULL;
 }
 
-void flat_img_init(FlatImg *img, uint32_t width, uint32_t height) {
+void ccrush_flat_img_init(ccrush_FlatImg *img, uint32_t width, uint32_t height) {
     img->width = width;
     img->height = height;
 
     img->data = malloc(sizeof(uint8_t) * 3 * width * height);
 }
 
-void flat_img_clear(FlatImg *img) {
+void ccrush_flat_img_clear(ccrush_FlatImg *img) {
     free(img->data);
     img->data = NULL;
 }

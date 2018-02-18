@@ -5,11 +5,11 @@
 #include <stdint.h>
 
 #include "color.h"
+#include "colorcrush.h"
 #include "dither.h"
 #include "heap.h"
 #include "node.h"
 #include "pool.h"
-#include "quantize.h"
 
 /**
 @returns index of child in octree at a given @p level for @p color, by checking the value of the bit
@@ -172,12 +172,12 @@ static unsigned int index_of_nearest_color(uint8_t *palette, unsigned int palett
     return palette_index / 3;
 }
 
-void img_quantize(
-    FlatImg *flat_img,
+void ccrush_img_quantize(
+    ccrush_FlatImg *flat_img,
     unsigned int max_colors_count,
     unsigned int octree_depth,
     bool use_dither,
-    IndexedImg *indexed_img) {
+    ccrush_IndexedImg *indexed_img) {
     uint8_t *data = flat_img->data;
     uint32_t data_size = flat_img->width * flat_img->height * 3;
 
@@ -246,7 +246,7 @@ void img_quantize(
     heap_clear(&heap);
 
     // now that the actual colors count is known, instanciate the indexed image
-    indexed_img_init(indexed_img, flat_img->width, flat_img->height, leaves_count);
+    ccrush_indexed_img_init(indexed_img, flat_img->width, flat_img->height, leaves_count);
     // fill palette with colors from the remaining leaves
     unsigned int palette_size = fill_palette(indexed_img->palette, 0, octree);
 

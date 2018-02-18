@@ -8,10 +8,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "img.h"
-#include "quantize.h"
+#include "colorcrush.h"
 
-void read_img_from_png(char *filename, FlatImg *img) {
+void read_img_from_png(char *filename, ccrush_FlatImg *img) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
         fprintf(stderr, "Could not open file \"%s\"\n", filename);
@@ -73,7 +72,7 @@ void read_img_from_png(char *filename, FlatImg *img) {
     free(png_data_rows);
     png_data_rows = NULL;
 
-    flat_img_init(img, width, height);
+    ccrush_flat_img_init(img, width, height);
     // png data to internal data
     uint32_t pixels_count = width * height;
     for (uint32_t i = 0; i < pixels_count; i++) {
@@ -87,7 +86,7 @@ void read_img_from_png(char *filename, FlatImg *img) {
     fclose(file);
 }
 
-void write_img_to_png(char *filename, IndexedImg *img) {
+void write_img_to_png(char *filename, ccrush_IndexedImg *img) {
     FILE *file = fopen(filename, "wb");
     if (!file) {
         fprintf(stderr, "Could not open file \"%s\"\n", filename);
@@ -200,12 +199,12 @@ int main(int argc, char *argv[]) {
     char *input_filename = argv[optind];
     char *output_filename = argv[optind + 1];
 
-    FlatImg flat_img;
+    ccrush_FlatImg flat_img;
     read_img_from_png(input_filename, &flat_img);
-    IndexedImg indexed_img;
-    img_quantize(&flat_img, max_colors_count, octree_depth, use_dither, &indexed_img);
+    ccrush_IndexedImg indexed_img;
+    ccrush_img_quantize(&flat_img, max_colors_count, octree_depth, use_dither, &indexed_img);
     write_img_to_png(output_filename, &indexed_img);
 
-    flat_img_clear(&flat_img);
-    indexed_img_clear(&indexed_img);
+    ccrush_flat_img_clear(&flat_img);
+    ccrush_indexed_img_clear(&indexed_img);
 }

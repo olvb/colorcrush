@@ -1,44 +1,60 @@
+DEBUG = 0
+
+PACKAGE = colorcrush
+LIB_TARGET = lib/$(PACKAGE)/lib$(PACKAGE).so
+DEMO_TARGETS = bin/rgb2palette
+
 CC = gcc
 LD = $(CC)
-CFLAGS = -std=c11 -Wall -Wextra -Wno-sign-compare
-CFLAGS_DBG = -g -DDEBUG
-CFLAGS_RLS = -O2 -DNDEBUG
+CFLAGS = -std=c11 -Wall -Wextra -Wno-sign-compare -Iinclude/$(PACKAGE)
+LDFLAGS = -lm
+
 ifeq ($(DEBUG), 1)
-	CFLAGS += $(CFLAGS_DBG)
+CFLAGS += -g -DDEBUG
 else
-	CFLAGS += $(CFLAGS_RLS)
+CFLAGS += -O2 -DNDEBUG
 endif
-LDFLAGS = -lpng -lz -lm
 
-TARGET = colorcrush
+LIB_CFLAGS = -fPIC
+LIB_LDFLAGS =
 
-SRC_DIR = src
-OBJ_DIR = obj
-DEP_DIR = .d
-SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
-HEADER_FILES = $(wildcard $(SRC_DIR)/*.h)
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC_FILES))
-DEP_FILES = $(patsubst $(SRC_DIR)/%.c, $(DEP_DIR)/%.d, $(SRC_FILES))
+DEMO_CFLAGS = $(shell pkg-config --cflags libpng)
+DEMO_LDFLAGS = $(shell pkg-config --libs libpng)
 
-.PHONY: all clean
+LIB_SRCS = $(wildcard src/*.c)
+LIB_OBJS = $(patsubst src/%.c, obj/lib/%.o, $(LIB_SRCS))
+LIB_DEPS = $(wildcard .d/lib/*.d)
+DEMO_SRCS = $(wildcard demo/*.c)
+DEMO_DEPS = $(wildcard .d/demo/*.d)
 
-all: $(TARGET)
+.PHONY: all lib demo clean
 
-$(TARGET): $(OBJ_FILES)
+all: lib demo
+
+lib: $(LIB_TARGET)
+
+demo: $(DEMO_TARGETS)
+
+$(LIB_TARGET): $(LIB_OBJS)
 	@mkdir -p $(@D)
-	$(LD) -o $@ $(OBJ_FILES) $(LDFLAGS)
+	$(LD) -shared $^ -o $@ $(LDFLAGS) $(LIB_LDFLAGS)
 
-$(OBJ_DIR)/%.o:
+bin/%: obj/demo/%.o $(LIB_OBJS)
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(LD) -o $@ $^ $(LDFLAGS) $(DEMO_LDFLAGS)
 
-$(DEP_DIR)/%.d: $(SRC_DIR)/%.c
-	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -MM -MT $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $<) $< -MF $@
+obj/lib/%.o: src/%.c
+	@mkdir -p $(@D) .d/lib
+	$(CC) $(CFLAGS) $(LIB_CFLAGS) -MMD -MF .d/lib/$*.d -c -o $@ $<
+
+obj/demo/%.o: demo/%.c
+	@mkdir -p $(@D) .d/demo
+	$(CC) $(CFLAGS) $(DEMO_CFLAGS) -MMD -MF .d/demo/$*.d -c -o $@ $<
 
 ifneq ($(MAKECMDGOALS), clean)
-    -include $(DEP_FILES)
+-include $(LIB_DEPS)
+-include $(DEMO_DEPS)
 endif
 
 clean:
-	$(RM) $(OBJ_FILES) $(DEP_FILES) $(TARGET) .deps
+	$(RM) lib/$(PACKAGE)/* bin/* obj/lib/* obj/demo/* .d/lib/* .d/demo/*

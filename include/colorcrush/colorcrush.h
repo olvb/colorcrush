@@ -1,7 +1,26 @@
 #pragma once
 #include <stdbool.h>
+#include <stdint.h>
 
-#include "img.h"
+typedef struct ccrush_FlatImg {
+    uint32_t width;
+    uint32_t height;
+    uint8_t *data;
+} ccrush_FlatImg;
+
+typedef struct ccrush_IndexedImg {
+    uint32_t width;
+    uint32_t height;
+    unsigned int colors_count;
+    uint8_t *palette;
+    uint8_t *data;
+} ccrush_IndexedImg;
+
+void ccrush_flat_img_init(ccrush_FlatImg *img, uint32_t width, uint32_t height);
+void ccrush_flat_img_clear(ccrush_FlatImg *img);
+
+void ccrush_indexed_img_init(ccrush_IndexedImg *indexed_img, uint32_t width, uint32_t height, unsigned int colors_count);
+void ccrush_indexed_img_clear(ccrush_IndexedImg *img);
 
 /**
 Quantize colors of true color @p flat_img in a new @p indexed_img.
@@ -13,9 +32,9 @@ not too low, lowering this value may speed up the quantization process without a
 depending on the image, the visual result may be greatly improved.
 @p indexed_img must be uninitialized.
 */
-void img_quantize(
-    FlatImg *flat_img,
+void ccrush_img_quantize(
+    ccrush_FlatImg *flat_img,
     unsigned int max_colors_count,
     unsigned int max_octree_depth,
     bool use_dither,
-    IndexedImg *indexed_img);
+    ccrush_IndexedImg *indexed_img);
