@@ -154,12 +154,11 @@ void write_img_to_png(char *filename, ccrush_IndexedImg *img) {
     fclose(file);
 }
 
-void print_usage_and_exit(char *exec_name) {
+void usage(char *exec_name) {
     fprintf(stderr, "Usage: %s [options] <in.png> <out.png>\n", exec_name);
     fprintf(stderr, "  -c <colors_count>\tMaximum number of colors in palette [1-256, default: 256]\n");
     fprintf(stderr, "  -d\t\t\tUse dithering\n");
     fprintf(stderr, "  -o <octree_depth>\tOctree depth (lower values can yield different results) [1-8, default: 6]\n");
-    exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]) {
@@ -188,12 +187,14 @@ int main(int argc, char *argv[]) {
             }
             break;
         default:
-            print_usage_and_exit(argv[0]);
+            usage(argv[0]);
+            exit(EXIT_FAILURE);
         }
     }
 
     if (argc - optind != 2) {
-        print_usage_and_exit(argv[0]);
+        usage(argv[0]);
+        exit(EXIT_FAILURE);
     }
 
     char *input_filename = argv[optind];

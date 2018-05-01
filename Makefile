@@ -1,8 +1,6 @@
 DEBUG = 0
 
 PACKAGE = colorcrush
-LIB_TARGET = lib/$(PACKAGE)/lib$(PACKAGE).so
-DEMO_TARGETS = bin/rgb2palette
 
 CC = gcc
 LD = $(CC)
@@ -15,17 +13,20 @@ else
 CFLAGS += -O2 -DNDEBUG
 endif
 
-LIB_CFLAGS = -fPIC
-LIB_LDFLAGS =
+LIB_CFLAGS = $(CFLAGS) -fPIC
+LIB_LDFLAGS = $(LDFLAGS)
 
-DEMO_CFLAGS = $(shell pkg-config --cflags libpng)
-DEMO_LDFLAGS = $(shell pkg-config --libs libpng)
+DEMO_CFLAGS = $(CFLAGS) $(shell pkg-config --cflags libpng)
+DEMO_LDFLAGS = $(LDFLAGS) $(shell pkg-config --libs libpng)
 
 LIB_SRCS = $(wildcard src/*.c)
 LIB_OBJS = $(patsubst src/%.c, obj/lib/%.o, $(LIB_SRCS))
 LIB_DEPS = $(wildcard .d/lib/*.d)
+LIB_TARGET = lib/$(PACKAGE)/lib$(PACKAGE).so
+
 DEMO_SRCS = $(wildcard demo/*.c)
 DEMO_DEPS = $(wildcard .d/demo/*.d)
+DEMO_TARGETS = $(patsubst demo/%.c, bin/%, $(DEMO_SRCS))
 
 .PHONY: all lib demo clean
 
@@ -37,19 +38,19 @@ demo: $(DEMO_TARGETS)
 
 $(LIB_TARGET): $(LIB_OBJS)
 	@mkdir -p $(@D)
-	$(LD) -shared $^ -o $@ $(LDFLAGS) $(LIB_LDFLAGS)
+	$(LD) -shared $^ -o $@ $(LIB_LDFLAGS)
 
-bin/%: obj/demo/%.o $(LIB_OBJS)
+$(DEMO_TARGETS): bin/%: obj/demo/%.o $(LIB_OBJS)
 	@mkdir -p $(@D)
-	$(LD) -o $@ $^ $(LDFLAGS) $(DEMO_LDFLAGS)
+	$(LD) -o $@ $^ $(DEMO_LDFLAGS)
 
 obj/lib/%.o: src/%.c
 	@mkdir -p $(@D) .d/lib
-	$(CC) $(CFLAGS) $(LIB_CFLAGS) -MMD -MF .d/lib/$*.d -c -o $@ $<
+	$(CC) $(LIB_CFLAGS) -MMD -MF .d/lib/$*.d -c -o $@ $<
 
 obj/demo/%.o: demo/%.c
 	@mkdir -p $(@D) .d/demo
-	$(CC) $(CFLAGS) $(DEMO_CFLAGS) -MMD -MF .d/demo/$*.d -c -o $@ $<
+	$(CC) $(DEMO_CFLAGS) -MMD -MF .d/demo/$*.d -c -o $@ $<
 
 ifneq ($(MAKECMDGOALS), clean)
 -include $(LIB_DEPS)
