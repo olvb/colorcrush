@@ -1,4 +1,4 @@
-## How it works
+## Color quantization with octrees
 
 Octrees are used in color quantization to divide the image color space into nested clusters. The deepest clusters are the leaves and they represent only one color. The upper nodes represent the average color of their children, taking into account the pixel count of each color. The octree is reduced until the desired number of color is reached, the remaining leaves forming the palette colors.
 
