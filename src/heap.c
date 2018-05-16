@@ -3,17 +3,17 @@
 
 #include "heap.h"
 
-void heap_init(Heap *heap, size_t max_size) {
-    heap->nodes = malloc(sizeof(Node) * max_size);
+void heap_init(heap_t *heap, size_t max_size) {
+    heap->nodes = malloc(sizeof(node_t) * max_size);
     heap->size = 0;
 }
 
-void heap_clear(Heap *heap) {
+void heap_clear(heap_t *heap) {
     free(heap->nodes);
     heap->nodes = NULL;
 }
 
-static int node_cmp(Node *lhs, Node *rhs) {
+static int node_cmp(node_t *lhs, node_t *rhs) {
     if (lhs->error > rhs->error) {
         return +1;
     }
@@ -31,7 +31,7 @@ static int node_cmp(Node *lhs, Node *rhs) {
     return 0;
 }
 
-void heap_push(Heap *heap, Node *node) {
+void heap_push(heap_t *heap, node_t *node) {
     int index = heap->size;
     heap->size++;
     while (index != 0) {
@@ -47,17 +47,17 @@ void heap_push(Heap *heap, Node *node) {
     heap->nodes[index] = node;
 }
 
-Node *heap_pop(Heap *heap) {
+node_t *heap_pop(heap_t *heap) {
     assert(heap->size > 0);
 
-    Node *top_node = heap->nodes[0];
+    node_t *top_node = heap->nodes[0];
     if (heap->size == 1) {
         heap->size = 0;
         return top_node;
     }
 
     heap->size--;
-    Node *moved_node = heap->nodes[heap->size];
+    node_t *moved_node = heap->nodes[heap->size];
     int index = 0;
     int child_index = 1;
     while (child_index < heap->size) {

@@ -22,7 +22,7 @@
 #define DITHER_COEF_BOTTOM_RIGHT 1
 #define DITHER_COEF_DIVIDER 16
 
-void dither_init(Dither *dither, uint32_t width) {
+void dither_init(dither_t *dither, uint32_t width) {
     dither->width = width;
     dither->current_row = 0;
     dither->current_row_begin = 0;
@@ -30,12 +30,12 @@ void dither_init(Dither *dither, uint32_t width) {
     dither->errors = calloc(width * DITHER_HEIGHT * 3, sizeof(int));
 }
 
-void dither_clear(Dither *dither) {
+void dither_clear(dither_t *dither) {
     free(dither->errors);
     dither->errors = NULL;
 }
 
-static void dither_shift_row(Dither *dither) {
+static void dither_shift_row(dither_t *dither) {
     // wipe current row error values
     memset(dither->errors + dither->current_row_begin, 0, sizeof(int) * dither->width * 3);
 
@@ -45,7 +45,7 @@ static void dither_shift_row(Dither *dither) {
 }
 
 void dither_diffuse_error(
-    Dither *dither, uint32_t pixel_index,
+    dither_t *dither, uint32_t pixel_index,
     uint8_t *src_color, uint8_t *rounded_color) {
     // compute error
     int r_error = (int)src_color[COLOR_R] - rounded_color[COLOR_R];
@@ -100,7 +100,7 @@ void dither_diffuse_error(
 
 #define CLAMP(x, ceil) ((x) > (ceil) ? (ceil) : ((x) < 0 ? 0 : (x)))
 
-void dither_apply_error(Dither *dither, uint32_t pixel_index, uint8_t *color, uint8_t *corrected_color) {
+void dither_apply_error(dither_t *dither, uint32_t pixel_index, uint8_t *color, uint8_t *corrected_color) {
     uint32_t col = pixel_index % dither->width;
     uint32_t error_index = dither->current_row_begin + col * 3;
     int r_error = dither->errors[error_index + COLOR_R];

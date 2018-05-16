@@ -1,11 +1,11 @@
 #pragma once
 #include "node.h"
 
-typedef struct PoolBlock PoolBlock;
+typedef struct pool_block_t pool_block_t;
 /** Memory pool handling allocation and freeing of Nodes */
-typedef PoolBlock *Pool;
+typedef pool_block_t *pool_t;
 
-void pool_init(Pool *pool);
+void pool_init(pool_t *pool);
 /** @returns pointer on allocated and ready to use Node */
-Node *pool_next(Pool *pool);
-void pool_clear(Pool *pool);
+node_t *pool_next(pool_t *pool);
+void pool_clear(pool_t *pool);

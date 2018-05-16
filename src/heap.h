@@ -3,12 +3,12 @@
 
 #include "node.h"
 
-typedef struct Heap {
+typedef struct heap_t {
     size_t size;
-    Node **nodes;
-} Heap;
+    node_t **nodes;
+} heap_t;
 
-void heap_init(Heap *heap, size_t max_size);
-void heap_clear(Heap *heap);
-void heap_push(Heap *heap, Node *node);
-Node *heap_pop(Heap *heap);
+void heap_init(heap_t *heap, size_t max_size);
+void heap_clear(heap_t *heap);
+void heap_push(heap_t *heap, node_t *node);
+node_t *heap_pop(heap_t *heap);

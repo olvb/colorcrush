@@ -2,25 +2,25 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct ccrush_FlatImg {
+typedef struct ccrush_flat_img_t {
     uint32_t width;
     uint32_t height;
     uint8_t *data;
-} ccrush_FlatImg;
+} ccrush_flat_img_t;
 
-typedef struct ccrush_IndexedImg {
+typedef struct ccrush_idx_img_t {
     uint32_t width;
     uint32_t height;
     unsigned int colors_count;
     uint8_t *palette;
     uint8_t *data;
-} ccrush_IndexedImg;
+} ccrush_idx_img_t;
 
-void ccrush_flat_img_init(ccrush_FlatImg *img, uint32_t width, uint32_t height);
-void ccrush_flat_img_clear(ccrush_FlatImg *img);
+void ccrush_flat_img_init(ccrush_flat_img_t *img, uint32_t width, uint32_t height);
+void ccrush_flat_img_clear(ccrush_flat_img_t *img);
 
-void ccrush_indexed_img_init(ccrush_IndexedImg *indexed_img, uint32_t width, uint32_t height, unsigned int colors_count);
-void ccrush_indexed_img_clear(ccrush_IndexedImg *img);
+void ccrush_indexed_img_init(ccrush_idx_img_t *indexed_img, uint32_t width, uint32_t height, unsigned int colors_count);
+void ccrush_indexed_img_clear(ccrush_idx_img_t *img);
 
 /**
 Quantize colors of true color @p flat_img in a new @p indexed_img.
@@ -33,8 +33,8 @@ depending on the image, the visual result may be greatly improved.
 @p indexed_img must be uninitialized.
 */
 void ccrush_img_quantize(
-    ccrush_FlatImg *flat_img,
+    ccrush_flat_img_t *flat_img,
     unsigned int max_colors_count,
     unsigned int max_octree_depth,
     bool use_dither,
-    ccrush_IndexedImg *indexed_img);
+    ccrush_idx_img_t *indexed_img);

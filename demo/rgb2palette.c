@@ -10,7 +10,7 @@
 
 #include "colorcrush.h"
 
-void read_img_from_png(char *filename, ccrush_FlatImg *img) {
+void read_img_from_png(char *filename, ccrush_flat_img_t *img) {
     FILE *file = fopen(filename, "rb");
     if (!file) {
         fprintf(stderr, "Could not open file \"%s\"\n", filename);
@@ -86,7 +86,7 @@ void read_img_from_png(char *filename, ccrush_FlatImg *img) {
     fclose(file);
 }
 
-void write_img_to_png(char *filename, ccrush_IndexedImg *img) {
+void write_img_to_png(char *filename, ccrush_idx_img_t *img) {
     FILE *file = fopen(filename, "wb");
     if (!file) {
         fprintf(stderr, "Could not open file \"%s\"\n", filename);
@@ -200,9 +200,9 @@ int main(int argc, char *argv[]) {
     char *input_filename = argv[optind];
     char *output_filename = argv[optind + 1];
 
-    ccrush_FlatImg flat_img;
+    ccrush_flat_img_t flat_img;
     read_img_from_png(input_filename, &flat_img);
-    ccrush_IndexedImg indexed_img;
+    ccrush_idx_img_t indexed_img;
     ccrush_img_quantize(&flat_img, max_colors_count, octree_depth, use_dither, &indexed_img);
     write_img_to_png(output_filename, &indexed_img);
 

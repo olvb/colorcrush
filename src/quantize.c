@@ -31,7 +31,7 @@ static unsigned int child_index_for_color(unsigned int level, uint8_t *color) {
     return index;
 }
 
-static void compute_octree_error(Node *node) {
+static void compute_octree_error(node_t *node) {
     assert(!node->is_leaf);
     assert(node->error == 0);
 
@@ -40,7 +40,7 @@ static void compute_octree_error(Node *node) {
             continue;
         }
 
-        Node *child = node->children[i];
+        node_t *child = node->children[i];
         node->error += color_diff_uint32(node->color_sum, child->color_sum);
         if (!child->is_leaf) {
             compute_octree_error(child);
@@ -48,7 +48,7 @@ static void compute_octree_error(Node *node) {
     }
 }
 
-static void fill_heap(Heap *heap, Node *node) {
+static void fill_heap(heap_t *heap, node_t *node) {
     assert(!node->is_leaf);
 
     heap_push(heap, node);
@@ -58,7 +58,7 @@ static void fill_heap(Heap *heap, Node *node) {
             continue;
         }
 
-        Node *child = node->children[i];
+        node_t *child = node->children[i];
         if (!child->is_leaf) {
             fill_heap(heap, child);
         }
@@ -70,7 +70,7 @@ Tranforms an immediate leaves parent @p node into a leaf by removing its leaves
 and transfering on itself the cumulated color values of its leaves.
 @returns leaves count reduction (ie. number of deleted leaves minus the newly created leaf)
 */
-static unsigned int reduce_node(Node *node) {
+static unsigned int reduce_node(node_t *node) {
     assert(!node->is_leaf);
 
     unsigned int removed_leaves_count = 0;
@@ -79,7 +79,7 @@ static unsigned int reduce_node(Node *node) {
             continue;
         }
 
-        Node *child = node->children[i];
+        node_t *child = node->children[i];
         // reduce child if not a leaf
         if (!child->is_leaf) {
             removed_leaves_count += reduce_node(child);
@@ -102,7 +102,7 @@ Fills @p palette with colors taken from the leaves of the descendants of @p node
 @p palette_size : size of the palette before (number of colors * 3)
 @returns size of the palette after
 */
-static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, Node *node) {
+static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, node_t *node) {
     if (node->is_leaf) {
         node->palette_index = palette_size / 3;
 
@@ -127,8 +127,8 @@ static unsigned int fill_palette(uint8_t *palette, unsigned int palette_size, No
 @returns palette index of @p color by walking down @p octree until reaching a leaf. Used when no
 dithering is applied (as we are sure to reach a leaf in this case).
 */
-static uint8_t index_of_cluster_color(Node *octree, int octree_depth, uint8_t *color) {
-    Node *node = octree;
+static uint8_t index_of_cluster_color(node_t *octree, int octree_depth, uint8_t *color) {
+    node_t *node = octree;
     for (int i = 0; i < octree_depth; i++) {
         unsigned int child_index = child_index_for_color(i, color);
         if (node->children[child_index] == NULL) {
@@ -173,24 +173,24 @@ static unsigned int index_of_nearest_color(uint8_t *palette, unsigned int palett
 }
 
 void ccrush_img_quantize(
-    ccrush_FlatImg *flat_img,
+    ccrush_flat_img_t *flat_img,
     unsigned int max_colors_count,
     unsigned int octree_depth,
     bool use_dither,
-    ccrush_IndexedImg *indexed_img) {
+    ccrush_idx_img_t *indexed_img) {
     uint8_t *data = flat_img->data;
     uint32_t data_size = flat_img->width * flat_img->height * 3;
 
     // Step 1: build an octree subdividing the color space of the image
-    Pool pool;
+    pool_t pool;
     pool_init(&pool);
-    Node *octree = pool_next(&pool);
+    node_t *octree = pool_next(&pool);
 
     unsigned int max_heap_size = 0;
     unsigned int leaves_count = 0;
     // for each pixel, build the octree path down to the leaf of its color
     for (uint32_t i = 0; i < data_size; i += 3) {
-        Node *node = octree;
+        node_t *node = octree;
         uint8_t *color = &data[i];
 
         // walk down the octree creating new nodes as we go
@@ -206,7 +206,7 @@ void ccrush_img_quantize(
             }
 
             unsigned int child_index = child_index_for_color(j, color);
-            Node *child = node->children[child_index];
+            node_t *child = node->children[child_index];
             // init new node
             if (child == NULL) {
                 child = pool_next(&pool);
@@ -229,13 +229,13 @@ void ccrush_img_quantize(
     // compute error for all nodes
     compute_octree_error(octree);
     // sort nodes by error with heap sort
-    Heap heap;
+    heap_t heap;
     heap_init(&heap, max_heap_size);
     fill_heap(&heap, octree);
 
     // reduce node, high error values first
     while (leaves_count > max_colors_count) {
-        Node *node = heap_pop(&heap);
+        node_t *node = heap_pop(&heap);
         // we might encounter nodes that have been leaves in the heap before they were folded up, ignore them
         if (node->is_leaf) {
             continue;
@@ -261,7 +261,7 @@ void ccrush_img_quantize(
             pixel_index++;
         }
     } else {
-        Dither dither;
+        dither_t dither;
         dither_init(&dither, indexed_img->width);
 
         uint8_t dither_color[3];
