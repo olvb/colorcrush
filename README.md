@@ -16,7 +16,7 @@ Note that even without using dither, looking for the closest palette color would
 
 ## Results
 
-Click for full-scale image
+*Click for full-scale image*
 
 ### Photographic image:
 
