@@ -2,7 +2,7 @@
 
 Octrees are used in color quantization to divide the image color space into nested clusters. The deepest clusters are the leaves and they represent only one color. The upper nodes represent the average color of their children, taking into account the pixel count of each color. The octree is reduced until the desired number of color is reached, the remaining leaves forming the palette colors.
 
-The method used to decide in which order to the octree is roughly the one described in [this imagemagick document][1]. An error value is assigned to each node, and using heap sort, nodes with higher error values are decimated in priority. The error value of a node is the sum of the difference between its average color and its children's colors (which is itself an average color unless they are leaves). The difference between two colors is evaluated as the sum of the squares of the difference between each channel, weighted by rough YUV-ish coefficients (which yields smoother images).
+The method used to decide in which order to the octree is roughly the one described in [this imagemagick document][1]. An error value is assigned to each node, and using heap sort, nodes with higher error values are folded in priority. The error value of a node is the sum of the difference between its average color and its children's colors (which is itself an average color unless they are leaves). The difference between two colors is evaluated as the sum of the squares of the difference between each channel, weighted by rough YUV-ish coefficients (which yields smoother images).
 
 [1]: https://www.imagemagick.org/script/quantize.php
 
