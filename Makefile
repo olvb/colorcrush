@@ -15,10 +15,10 @@ else
 CFLAGS += -O2 -DNDEBUG
 endif
 
-LIB_CFLAGS = -fPIC
+LIB_CFLAGS = -fPIC -Iinclude/$(PACKAGE)/
 LIB_LDFLAGS = -lm
 
-DEMO_CFLAGS = $(CFLAGS) $(shell pkg-config --cflags libpng)
+DEMO_CFLAGS =  -Iinclude/ $(CFLAGS) $(shell pkg-config --cflags libpng)
 DEMO_LDFLAGS = -lm $(LDFLAGS) $(shell pkg-config --libs libpng)
 
 LIB_SRCS = $(wildcard src/*.c)

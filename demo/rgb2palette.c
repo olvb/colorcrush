@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "colorcrush.h"
+#include "colorcrush/colorcrush.h"
 
 void read_img_from_png(char *filename, ccrush_flat_img_t *img) {
     FILE *file = fopen(filename, "rb");
@@ -156,6 +156,7 @@ void write_img_to_png(char *filename, ccrush_idx_img_t *img) {
 
 void usage(char *exec_name) {
     fprintf(stderr, "Usage: %s [options] <in.png> <out.png>\n", exec_name);
+    fprintf(stderr, "Options:\n");
     fprintf(stderr, "  -c <colors_count>\tMaximum number of colors in palette [1-256, default: 256]\n");
     fprintf(stderr, "  -d\t\t\tUse dithering\n");
     fprintf(stderr, "  -o <octree_depth>\tOctree depth (lower values can yield different results) [1-8, default: 6]\n");
@@ -202,10 +203,10 @@ int main(int argc, char *argv[]) {
 
     ccrush_flat_img_t flat_img;
     read_img_from_png(input_filename, &flat_img);
-    ccrush_idx_img_t indexed_img;
-    ccrush_img_quantize(&flat_img, max_colors_count, octree_depth, use_dither, &indexed_img);
-    write_img_to_png(output_filename, &indexed_img);
+    ccrush_idx_img_t idx_img;
+    ccrush_img_quantize(&flat_img, max_colors_count, octree_depth, use_dither, &idx_img);
+    write_img_to_png(output_filename, &idx_img);
 
     ccrush_flat_img_clear(&flat_img);
-    ccrush_indexed_img_clear(&indexed_img);
+    ccrush_idx_img_clear(&idx_img);
 }

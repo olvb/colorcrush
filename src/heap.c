@@ -1,19 +1,20 @@
+#include "heap.h"
 #include <assert.h>
 #include <stdlib.h>
 
-#include "heap.h"
+static int ccrush_heap_cmp_nodes(ccrush_node_t *lhs, ccrush_node_t *rhs);
 
-void heap_init(heap_t *heap, size_t max_size) {
-    heap->nodes = malloc(sizeof(node_t) * max_size);
+void ccrush_heap_init(ccrush_heap_t *heap, size_t max_size) {
+    heap->nodes = malloc(sizeof(ccrush_node_t) * max_size);
     heap->size = 0;
 }
 
-void heap_clear(heap_t *heap) {
+void ccrush_heap_clear(ccrush_heap_t *heap) {
     free(heap->nodes);
     heap->nodes = NULL;
 }
 
-static int node_cmp(node_t *lhs, node_t *rhs) {
+static int ccrush_heap_cmp_nodes(ccrush_node_t *lhs, ccrush_node_t *rhs) {
     if (lhs->error > rhs->error) {
         return +1;
     }
@@ -31,12 +32,12 @@ static int node_cmp(node_t *lhs, node_t *rhs) {
     return 0;
 }
 
-void heap_push(heap_t *heap, node_t *node) {
+void ccrush_heap_push(ccrush_heap_t *heap, ccrush_node_t *node) {
     int index = heap->size;
     heap->size++;
     while (index != 0) {
         unsigned int parent_index = (index - 1) / 2;
-        if (node_cmp(heap->nodes[parent_index], node) <= 0) {
+        if (ccrush_heap_cmp_nodes(heap->nodes[parent_index], node) <= 0) {
             break;
         }
 
@@ -47,26 +48,26 @@ void heap_push(heap_t *heap, node_t *node) {
     heap->nodes[index] = node;
 }
 
-node_t *heap_pop(heap_t *heap) {
+ccrush_node_t *ccrush_heap_pop(ccrush_heap_t *heap) {
     assert(heap->size > 0);
 
-    node_t *top_node = heap->nodes[0];
+    ccrush_node_t *top_node = heap->nodes[0];
     if (heap->size == 1) {
         heap->size = 0;
         return top_node;
     }
 
     heap->size--;
-    node_t *moved_node = heap->nodes[heap->size];
+    ccrush_node_t *moved_node = heap->nodes[heap->size];
     int index = 0;
     int child_index = 1;
     while (child_index < heap->size) {
         // pick smallest of the 2 children
-        if (child_index + 1 < heap->size && node_cmp(heap->nodes[child_index], heap->nodes[child_index + 1]) >= 0) {
+        if (child_index + 1 < heap->size && ccrush_heap_cmp_nodes(heap->nodes[child_index], heap->nodes[child_index + 1]) >= 0) {
             child_index++;
         }
 
-        if (node_cmp(heap->nodes[child_index], moved_node) > 0) {
+        if (ccrush_heap_cmp_nodes(heap->nodes[child_index], moved_node) > 0) {
             break;
         }
 
@@ -77,4 +78,21 @@ node_t *heap_pop(heap_t *heap) {
 
     heap->nodes[index] = moved_node;
     return top_node;
+}
+
+void ccrush_heap_fill(ccrush_heap_t *heap, ccrush_node_t *node) {
+    assert(!node->is_leaf);
+
+    ccrush_heap_push(heap, node);
+
+    for (int i = 0; i < 8; i++) {
+        if (node->children[i] == NULL) {
+            continue;
+        }
+
+        ccrush_node_t *child = node->children[i];
+        if (!child->is_leaf) {
+            ccrush_heap_fill(heap, child);
+        }
+    }
 }

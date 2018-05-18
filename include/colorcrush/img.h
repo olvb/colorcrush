@@ -19,8 +19,8 @@ typedef struct ccrush_idx_img_t {
 void ccrush_flat_img_init(ccrush_flat_img_t *img, uint32_t width, uint32_t height);
 void ccrush_flat_img_clear(ccrush_flat_img_t *img);
 
-void ccrush_indexed_img_init(ccrush_idx_img_t *indexed_img, uint32_t width, uint32_t height, unsigned int colors_count);
-void ccrush_indexed_img_clear(ccrush_idx_img_t *img);
+void ccrush_idx_img_init(ccrush_idx_img_t *indexed_img, uint32_t width, uint32_t height, unsigned int colors_count);
+void ccrush_idx_img_clear(ccrush_idx_img_t *img);
 
 /**
 Quantize colors of true color @p flat_img in a new @p indexed_img.
