@@ -2,7 +2,7 @@
 
 Octrees are used in color quantization to divide the image color space into nested clusters. The deepest clusters are the leaves and they represent only one color. Upper nodes represent the average color of their children, taking into account the pixel count of each color. The octree is pruned until the desired number of color is reached, the remaining leaves forming the palette colors.
 
-The method used to decide where to reduce the octree is roughly the one described in [this imagemagick document][1]. An error value is assigned to each node, and using heap sort, nodes with higher error values are folded in priority. The error value of a node is the sum of the differences between its average color and the color of its children (themselves also being average colors unless they are leaves). The difference between two colors is evaluated to the sum of squared differences between each channel, weighted by rough YUV-ish coefficients.
+The method used to decide where to reduce the octree is roughly the one described in [this imagemagick document][1]. An error value is assigned to each node, and using heap sort, nodes with higher error values are folded in priority. The error value of a node is the sum of the differences between its average color and the color of its children (themselves also being average colors unless they are leaves). The difference between two colors is evaluated as the sum of squared differences between each channel, weighted by rough YUV-ish coefficients.
 
 [1]: https://www.imagemagick.org/script/quantize.php
 
@@ -56,6 +56,6 @@ Note that even without using dither, looking for the closest palette color yield
 
 ## Caveats
 
-Reducing an octree node means folding all its leaves onto itself. It is not possible to "partially" fold a node and preserve some of its leaves. As a consequence, it may not be possible to fill the palette with the exact number of colors wanted. This becomes obvious when setting a maximum number of colors lower than 8, which will always yield a palette of only 1 color: the average color of the image.
+Reducing an octree node means folding all its leaves onto itself. It is not possible to "partially" fold a node and preserve some of its leaves. As a consequence, it may not be possible to fill the palette with the exact number of colors desired. This becomes obvious when setting a maximum number of colors lower than 8, which will always yield a palette of only 1 color: the average color of the image.
 
-Limiting the octree depth can provide a performance gain (negligible when using dither), but also impact the chosen palette color. On some images (such as our second sample image), setting a lower depth may give results that are more visually pleasing.
+Limiting the octree depth can provide a speed gain (negligible when using dither), but also impact the chosen palette color. On some images (such as the second sample image), setting a lower depth may give results that are more visually convincing.
